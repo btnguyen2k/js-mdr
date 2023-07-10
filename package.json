@@ -1,0 +1,22 @@
+{
+  "name": "mdr",
+  "version": "0.1.0",
+  "description": "Render Markdown to HTML with rich extensions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/btnguyen2k/mdr.git"
+  },
+  "keywords": [
+    "Markdown"
+  ],
+  "author": "Thanh Nguyen <btnguyen2k(at)gmail(dot)com> (at)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/btnguyen2k/mdr/issues"
+  },
+  "homepage": "https://github.com/btnguyen2k/mdr#readme"
+}
