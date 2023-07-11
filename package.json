@@ -1,10 +1,13 @@
 {
-  "name": "mdr",
+  "name": "@btnguyen2k/mdr",
   "version": "0.1.0",
   "description": "Render Markdown to HTML with rich extensions.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run lint && babel ./src -d ./lib",
+    "lint": "eslint ./src",
+    "test": "mocha --require @babel/register"
   },
   "repository": {
     "type": "git",
@@ -13,10 +16,28 @@
   "keywords": [
     "Markdown"
   ],
-  "author": "Thanh Nguyen <btnguyen2k(at)gmail(dot)com> (at)",
+  "author": "Thanh Nguyen <btnguyen2k (at) gmail (dot) com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/btnguyen2k/mdr/issues"
   },
-  "homepage": "https://github.com/btnguyen2k/mdr#readme"
+  "homepage": "https://github.com/btnguyen2k/mdr#readme",
+  "dependencies": {
+    "dompurify": "^3.0.4",
+    "highlight.js": "^11.8.0",
+    "katex": "^0.16.8",
+    "marked": "^5.1.1",
+    "mermaid": "^10.2.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.6",
+    "@babel/core": "^7.22.8",
+    "@babel/preset-env": "^7.22.7",
+    "@babel/register": "^7.22.5",
+    "eslint": "^8.44.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "mocha": "^10.2.0"
+  }
 }

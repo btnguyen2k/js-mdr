@@ -1,0 +1,20 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+  ],
+  "env": {
+    "mocha": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+  ],
+  "rules": {
+  }
+}
