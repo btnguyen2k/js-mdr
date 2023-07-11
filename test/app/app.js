@@ -1,5 +1,5 @@
 import * as assert from 'assert';
 import {mdr} from '../../src/index.js';
 
-const md = "this is a _simple_ **Markdown** text"
+const md = "**Contact** _me_ at email@example.com"
 console.log(mdr(md))

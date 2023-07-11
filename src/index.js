@@ -12,9 +12,13 @@ import katex from 'katex'
 // import 'katex/contrib/mhchem/mhchem.js'
 // import 'katex/dist/katex.min.css'
 import {marked} from 'marked'
+import {markedHighlight} from 'marked-highlight'
+import {mangle} from 'marked-mangle'
+import {gfmHeadingId} from 'marked-gfm-heading-id'
 import DOMPurify from 'dompurify'
 
 import mermaid from 'mermaid'
+
 mermaid.initialize({startOnLoad: false})
 
 class MdrRenderer extends marked.Renderer {
@@ -25,12 +29,17 @@ class MdrRenderer extends marked.Renderer {
 
 const defaultMarkedOpts = {
     gfm: true,
+    headerIds: true,
+    mangle: true,
+}
+
+// default: use highlight.js to highlight source code
+const defaultMarkedHighlightOpts = {
     langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class
-    highlight: function (code, lang) {
+    highlight(code, lang) {
         const language = hljs.getLanguage(lang) ? lang : 'plaintext'
-        const highlightedCode = hljs.highlight(code, {language}).value
-        return highlightedCode
-    },
+        return hljs.highlight(code, {language}).value;
+    }
 }
 
 /**
@@ -58,6 +67,21 @@ function mdr(mdtext, opts, tocContainer) {
     // // process all instances of [[do-tag...]] first
     // const tags = typeof opts['tags'] == 'object' ? opts['tags'] : {}
     // mdtext = mdrRenderer._renderInlineDoTags(mdtext, tags)
+
+    /* marked v5.x */
+    // mangle
+    if (markedOpts['mangle']) {
+        markedOpts['mangle']= false
+        marked.use(mangle())
+    }
+    // headerIds
+    if (markedOpts['headerIds']) {
+        markedOpts['headerIds']= false
+        marked.use(gfmHeadingId({}))
+    }
+    // source code syntax highlight
+    const markedHighlightOpts = typeof markedOpts['highlight'] == 'object' ? {...markedOpts['highlight']} : {...defaultMarkedHighlightOpts}
+    marked.use(markedHighlight(markedHighlightOpts))
 
     let html = marked.parse(mdtext, markedOpts)
     if (opts['inline']) {
