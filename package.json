@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npm run lint && babel ./src -d ./lib",
     "lint": "eslint ./src",
-    "test": "mocha --require @babel/register"
+    "test": "nyc --all mocha --require @babel/register --recursive --exit"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,13 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
-    "mocha": "^10.2.0"
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
   }
 }

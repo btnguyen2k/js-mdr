@@ -11,10 +11,11 @@ import hljs from 'highlight.js' // all languages
 import katex from 'katex'
 // import 'katex/contrib/mhchem/mhchem.js'
 // import 'katex/dist/katex.min.css'
-import {marked} from 'marked'
+import {marked, Marked} from 'marked'
+import {gfmHeadingId} from 'marked-gfm-heading-id'
 import {markedHighlight} from 'marked-highlight'
 import {mangle} from 'marked-mangle'
-import {gfmHeadingId} from 'marked-gfm-heading-id'
+
 import DOMPurify from 'dompurify'
 
 import mermaid from 'mermaid'
@@ -42,6 +43,46 @@ const defaultMarkedHighlightOpts = {
     }
 }
 
+function extBaseUrl(baseUrl) {
+    const reAbsUrl = /^[\w+]+:\/\//
+
+    // make sure baseUrl ends with one '/'
+    baseUrl = baseUrl.trim().replaceAll(/[\/\.]+$/g, '')+'/'
+    return {
+        walkTokens(token) {
+            if (!['link', 'image'].includes(token.type)) {
+                // modify URL only for link and image tokens
+                return
+            }
+            if (reAbsUrl.test(token.href)) {
+                // keep the URL intact if absolute
+                return
+            }
+            if (!reAbsUrl.test(baseUrl)) {
+                // baseUrl is not absolute
+                if (token.href.startsWith("/")) {
+                    // the URL is from root
+                    return
+                }
+                try {
+                    const baseUrlFromRoot = baseUrl.startsWith('/')
+                    const dummy = 'http://__dummy__'
+                    const temp = new URL(baseUrl+token.href, dummy).href
+                    token.href = temp.slice(dummy.length + (baseUrlFromRoot ? 0 : 1))
+                } catch (e) {
+                    // ignore
+                }
+            } else {
+                try {
+                    token.href = new URL(token.href, baseUrl).href
+                } catch (e) {
+                    // ignore
+                }
+            }
+        }
+    }
+}
+
 /**
  * Parse and render Markdown text.
  * @param {string} mdtext the input Markdown text to parse
@@ -64,29 +105,36 @@ function mdr(mdtext, opts, tocContainer) {
     let mdrRenderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
     markedOpts.renderer = mdrRenderer
 
+    // create new instance so that we can use different options
+    const markedInstance = new Marked(marked.getDefaults())
+
     // // process all instances of [[do-tag...]] first
     // const tags = typeof opts['tags'] == 'object' ? opts['tags'] : {}
     // mdtext = mdrRenderer._renderInlineDoTags(mdtext, tags)
 
     /* marked v5.x */
-    // mangle
-    if (markedOpts['mangle']) {
-        markedOpts['mangle']= false
-        marked.use(mangle())
+    // baseUrl
+    if (markedOpts['baseUrl']) {
+        if (typeof markedOpts['baseUrl'] == 'string' && markedOpts['baseUrl'].trim() != '') {
+            markedInstance.use(extBaseUrl(markedOpts['baseUrl']))
+        }
+        markedOpts['baseUrl'] = null
     }
     // headerIds
     if (markedOpts['headerIds']) {
         markedOpts['headerIds']= false
-        marked.use(gfmHeadingId({}))
+        markedInstance.use(gfmHeadingId({}))
+    }
+    // mangle
+    if (markedOpts['mangle']) {
+        markedOpts['mangle']= false
+        markedInstance.use(mangle())
     }
     // source code syntax highlight
     const markedHighlightOpts = typeof markedOpts['highlight'] == 'object' ? {...markedOpts['highlight']} : {...defaultMarkedHighlightOpts}
-    marked.use(markedHighlight(markedHighlightOpts))
+    markedInstance.use(markedHighlight(markedHighlightOpts))
 
-    let html = marked.parse(mdtext, markedOpts)
-    if (opts['inline']) {
-        html = html.replaceAll(/^<\s*p\s*>/gi, '').replaceAll(/<\s*\/\s*p\s*>$/gi, '')
-    }
+    let html = opts['inline'] ? markedInstance.parseInline(mdtext, markedOpts) : markedInstance.parse(mdtext, markedOpts)
 
     // //render: katex
     // const latexHtml = html.replace(reKatexId, (_match, capture) => {
