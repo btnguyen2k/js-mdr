@@ -1,5 +1,5 @@
-import * as assert from 'assert';
-import {mdr} from '../../src/index.js';
+import {mdr} from '../../src/index.js'
 
-const md = "**Contact** _me_ at email@example.com. My website is [example.com](./relative/path)."
-console.log(mdr(md, {mangle: false, baseUrl: 'https://example.com/folder/'}))
+const md = '# heading 1\n\n## heading 2'
+const opts = {headerIds: true, headerPrefix: 'h-'}
+console.log(mdr(md, opts))

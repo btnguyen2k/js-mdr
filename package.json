@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "npm run lint && babel ./src -d ./lib",
-    "lint": "eslint ./src",
-    "test": "nyc --all mocha --require @babel/register --recursive --exit"
+    "lint": "eslint .",
+    "test": "nyc --all mocha --require @babel/register"
   },
   "repository": {
     "type": "git",
@@ -24,10 +24,10 @@
   "homepage": "https://github.com/btnguyen2k/mdr#readme",
   "dependencies": {
     "dompurify": "^3.0.4",
+    "github-slugger": "^2.0.0",
     "highlight.js": "^11.8.0",
     "katex": "^0.16.8",
     "marked": "^5.1.1",
-    "marked-gfm-heading-id": "^3.0.4",
     "marked-highlight": "^2.0.1",
     "marked-mangle": "^1.1.0",
     "mermaid": "^10.2.4"
@@ -38,6 +38,7 @@
     "@babel/preset-env": "^7.22.7",
     "@babel/register": "^7.22.5",
     "eslint": "^8.44.0",
+    "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",

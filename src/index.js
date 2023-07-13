@@ -1,18 +1,17 @@
-/*
-mdr - parse and render Markdown with rich extensions.
+/**
+ mdr - parse and render Markdown with rich extensions.
 
-Author: Thanh Nguyen <btnguyen2k (at) gmail (dot) com>
-Home  : https://github.com/btnguyen2k/mdr
-*/
+ Author: Thanh Nguyen <btnguyen2k (at) gmail (dot) com>
+ Home  : https://github.com/btnguyen2k/mdr
+ */
 
-//import 'highlight.js/styles/default.css'
+// import 'highlight.js/styles/default.css'
 import hljs from 'highlight.js' // all languages
 
-import katex from 'katex'
+// import katex from 'katex'
 // import 'katex/contrib/mhchem/mhchem.js'
 // import 'katex/dist/katex.min.css'
 import {marked, Marked} from 'marked'
-import {gfmHeadingId} from 'marked-gfm-heading-id'
 import {markedHighlight} from 'marked-highlight'
 import {mangle} from 'marked-mangle'
 
@@ -20,67 +19,33 @@ import DOMPurify from 'dompurify'
 
 import mermaid from 'mermaid'
 
+import {extBaseUrl} from './ext-base-url.js'
+import {MdrRenderer} from './renderer.js'
+
 mermaid.initialize({startOnLoad: false})
 
-class MdrRenderer extends marked.Renderer {
-    constructor(options) {
-        super(options)
-    }
-}
-
 const defaultMarkedOpts = {
-    gfm: true,
-    headerIds: true,
-    mangle: true,
+  gfm: true,
+  headerIds: true,
+  headerPrefix: '',
+  mangle: true,
+  langPrefix: null, // to disable marked-v5.0.0 warning
+  sanitize: false, // sanitize option is deprecated
+  safety: true,
+  safety_opts: {
+    add_tags: ['iframe'],
+    add_data_uri_tags: ['iframe'],
+    add_attr: ['target', 'allow'],
+  },
 }
 
 // default: use highlight.js to highlight source code
 const defaultMarkedHighlightOpts = {
-    langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class
-    highlight(code, lang) {
-        const language = hljs.getLanguage(lang) ? lang : 'plaintext'
-        return hljs.highlight(code, {language}).value;
-    }
-}
-
-function extBaseUrl(baseUrl) {
-    const reAbsUrl = /^[\w+]+:\/\//
-
-    // make sure baseUrl ends with one '/'
-    baseUrl = baseUrl.trim().replaceAll(/[\/\.]+$/g, '')+'/'
-    return {
-        walkTokens(token) {
-            if (!['link', 'image'].includes(token.type)) {
-                // modify URL only for link and image tokens
-                return
-            }
-            if (reAbsUrl.test(token.href)) {
-                // keep the URL intact if absolute
-                return
-            }
-            if (!reAbsUrl.test(baseUrl)) {
-                // baseUrl is not absolute
-                if (token.href.startsWith("/")) {
-                    // the URL is from root
-                    return
-                }
-                try {
-                    const baseUrlFromRoot = baseUrl.startsWith('/')
-                    const dummy = 'http://__dummy__'
-                    const temp = new URL(baseUrl+token.href, dummy).href
-                    token.href = temp.slice(dummy.length + (baseUrlFromRoot ? 0 : 1))
-                } catch (e) {
-                    // ignore
-                }
-            } else {
-                try {
-                    token.href = new URL(token.href, baseUrl).href
-                } catch (e) {
-                    // ignore
-                }
-            }
-        }
-    }
+  langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class
+  highlight(code, lang) {
+    const language = hljs.getLanguage(lang) ? lang : 'plaintext'
+    return hljs.highlight(code, {language}).value
+  }
 }
 
 /**
@@ -98,72 +63,84 @@ function extBaseUrl(baseUrl) {
  * @returns {string} the rendered HTML
  */
 function mdr(mdtext, opts, tocContainer) {
-    let markedOpts = {...defaultMarkedOpts}
-    opts = typeof opts == 'object' ? opts : {}
-    markedOpts = {...markedOpts, ...opts} // merge options
-    delete markedOpts['sanitize'] // sanitize option is deprecated, use DOMPurify instead
-    let mdrRenderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
-    markedOpts.renderer = mdrRenderer
-
-    // create new instance so that we can use different options
-    const markedInstance = new Marked(marked.getDefaults())
-
-    // // process all instances of [[do-tag...]] first
-    // const tags = typeof opts['tags'] == 'object' ? opts['tags'] : {}
-    // mdtext = mdrRenderer._renderInlineDoTags(mdtext, tags)
-
-    /* marked v5.x */
-    // baseUrl
-    if (markedOpts['baseUrl']) {
-        if (typeof markedOpts['baseUrl'] == 'string' && markedOpts['baseUrl'].trim() != '') {
-            markedInstance.use(extBaseUrl(markedOpts['baseUrl']))
-        }
-        markedOpts['baseUrl'] = null
+  let markedOpts = marked.getDefaults()
+  opts = typeof opts === 'object' && opts != null ? opts : {}
+  markedOpts = {...markedOpts, ...defaultMarkedOpts, ...opts} // merge options
+  for (const key in markedOpts) {
+    if (markedOpts[key] == null) {
+      delete markedOpts[key]
     }
-    // headerIds
-    if (markedOpts['headerIds']) {
-        markedOpts['headerIds']= false
-        markedInstance.use(gfmHeadingId({}))
+  }
+  const mdrRenderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
+  markedOpts.renderer = mdrRenderer
+
+  // create new instance so that we can use different options
+  const markedInstance = new Marked(marked.getDefaults())
+
+  // // process all instances of [[do-tag...]] first
+  // const tags = typeof opts['tags'] == 'object' ? opts['tags'] : {}
+  // mdtext = mdrRenderer._renderInlineDoTags(mdtext, tags)
+
+  /* marked v5.x */
+  // baseUrl
+  if (markedOpts.baseUrl) {
+    if (typeof markedOpts.baseUrl === 'string' && markedOpts.baseUrl.trim() !== '') {
+      markedInstance.use(extBaseUrl(markedOpts.baseUrl))
     }
-    // mangle
-    if (markedOpts['mangle']) {
-        markedOpts['mangle']= false
-        markedInstance.use(mangle())
-    }
-    // source code syntax highlight
-    const markedHighlightOpts = typeof markedOpts['highlight'] == 'object' ? {...markedOpts['highlight']} : {...defaultMarkedHighlightOpts}
-    markedInstance.use(markedHighlight(markedHighlightOpts))
+    delete markedOpts.baseUrl
+  }
+  // header ids
+  markedOpts.headerIds = false
+  delete markedOpts.headerPrefix
+  // mangle
+  if (markedOpts.mangle) {
+    delete markedOpts.mangle
+    markedInstance.use(mangle())
+  }
+  // source code syntax highlight
+  const markedHighlightOpts = typeof markedOpts.highlight === 'object' && markedOpts.highlight != null
+    ? {...markedOpts.highlight}
+    : {...defaultMarkedHighlightOpts}
+  markedInstance.use(markedHighlight(markedHighlightOpts))
 
-    let html = opts['inline'] ? markedInstance.parseInline(mdtext, markedOpts) : markedInstance.parse(mdtext, markedOpts)
+  const html = opts.inline ? markedInstance.parseInline(mdtext, markedOpts) : markedInstance.parse(mdtext, markedOpts)
 
-    // //render: katex
-    // const latexHtml = html.replace(reKatexId, (_match, capture) => {
-    //     const token = mathExpMap[capture]
-    //     const renderedKatex = katex.renderToString(token.expression, {
-    //         displayMode: token.type == 'block',
-    //         output: 'html',
-    //         throwOnError: false
-    //     })
-    //     return token.type == 'block' ? ('<div data-aos="fade-up">' + renderedKatex + '</div>') : renderedKatex
-    // })
+  // //render: katex
+  // const latexHtml = html.replace(reKatexId, (_match, capture) => {
+  //     const token = mathExpMap[capture]
+  //     const renderedKatex = katex.renderToString(token.expression, {
+  //         displayMode: token.type == 'block',
+  //         output: 'html',
+  //         throwOnError: false
+  //     })
+  //     return token.type == 'block' ? ('<div data-aos="fade-up">' + renderedKatex + '</div>') : renderedKatex
+  // })
 
-    const latexHtml = html
+  const latexHtml = html
 
-    if (typeof tocContainer == 'object') {
-        tocContainer.value = mdrRenderer.toc
-    }
+  if (typeof tocContainer === 'object') {
+    tocContainer.value = mdrRenderer.toc
+  }
 
-    const safety = opts['safety'] ? true : false
-    let ADD_TAGS = opts['add_tags'] ? opts['add_tags'] : ['iframe']
-    let ADD_DATA_URI_TAGS = opts['add_data_uri_tags'] ? opts['add_data_uri_tags'] : ['iframe']
-    let ADD_ATTR = opts['add_attr'] ? opts['add_attr'] : ['target', 'allow']
-    return safety ? DOMPurify.sanitize(latexHtml, {
-        ADD_TAGS: ADD_TAGS, ADD_DATA_URI_TAGS: ADD_DATA_URI_TAGS, // allow iframe tag for GitHub Gist and Youtube videos
-        ADD_ATTR: ADD_ATTR, // allow target and allow attributes for a and iframe tags
-    }) : latexHtml
+  let ADD_TAGS = ['iframe']
+  let ADD_DATA_URI_TAGS = ['iframe']
+  let ADD_ATTR = ['target', 'allow']
+  if (opts.safety_opts) {
+    ADD_TAGS = opts.safety_opts.add_tags ? opts.safety_opts.add_tags : ADD_TAGS
+    ADD_DATA_URI_TAGS = opts.safety_opts.add_data_uri_tags ? opts.safety_opts.add_data_uri_tags : ADD_DATA_URI_TAGS
+    ADD_ATTR = opts.safety_opts.add_attr ? opts.safety_opts.add_attr : ADD_ATTR
+  }
+
+  return opts.safety
+    ? DOMPurify.sanitize(latexHtml, {
+      ADD_TAGS,
+      ADD_DATA_URI_TAGS, // allow iframe tag for GitHub Gist and Youtube videos
+      ADD_ATTR, // allow target and allow attributes for a and iframe tags
+    })
+    : latexHtml
 }
 
 export {
-    mdr,
-    MdrRenderer
+  mdr,
+  MdrRenderer
 }
