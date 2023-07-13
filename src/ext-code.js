@@ -7,7 +7,7 @@
 export function extCode(options) {
   return {
     walkTokens(token) {
-      console.log('[DEBUG]', token)
+      // console.log('[DEBUG]', token)
     },
     renderer: {
       code(code, infoString, escaped) {

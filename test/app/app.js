@@ -9,7 +9,7 @@ import {mdr} from '../../src/index.js'
 //   }
 // }
 
-// const md = '```javascript\nconsole.log("Hello World!")\n```'
+const md = '```javascript\nconsole.log("Hello World!")\n```'
 // const opts = {__extensions: [extDummy()]}
-const md = '# heading'
+// const md = '# heading'
 console.log(mdr(md))

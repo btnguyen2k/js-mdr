@@ -11,7 +11,7 @@ import hljs from 'highlight.js' // all languages
 // import katex from 'katex'
 // import 'katex/contrib/mhchem/mhchem.js'
 // import 'katex/dist/katex.min.css'
-import {marked, Marked} from 'marked'
+import {Marked} from 'marked'
 import {mangle} from 'marked-mangle'
 
 import DOMPurify from 'dompurify'
@@ -63,10 +63,7 @@ const defaultMarkedHighlightOpts = {
  * @param {object} tocContainer (optional) container to store the generated table of content
  * @returns {string} the rendered HTML
  */
-function mdr(mdtext, opts, tocContainer) {
-  // create new instance so that we can use different options
-  const markedInstance = new Marked()
-
+function mdr(mdtext, opts = {}, tocContainer = null) {
   opts = typeof opts === 'object' && opts != null ? opts : {}
   const markedOpts = {...defaultMarkedOpts, ...opts} // merge options
   for (const key in markedOpts) {
@@ -77,10 +74,8 @@ function mdr(mdtext, opts, tocContainer) {
 
   const mdrRenderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
   markedOpts.renderer = mdrRenderer
-
-  // // process all instances of [[do-tag...]] first
-  // const tags = typeof opts['tags'] == 'object' ? opts['tags'] : {}
-  // mdtext = mdrRenderer._renderInlineDoTags(mdtext, tags)
+  // create new instance so that we can use different options
+  const markedInstance = new Marked({renderer: mdrRenderer})
 
   /* marked v5.x */
   // baseUrl
@@ -90,14 +85,14 @@ function mdr(mdtext, opts, tocContainer) {
     }
     delete markedOpts.baseUrl
   }
+
   // source code syntax highlight
-  // const markedHighlightOpts = typeof markedOpts.highlight === 'object' && markedOpts.highlight != null
-  //   ? {...markedOpts.highlight}
-  //   : {...defaultMarkedHighlightOpts}
-  // markedInstance.use(extCode({...markedOpts, ...markedHighlightOpts}))
+  markedInstance.use(extCode(markedOpts))
+
   // header ids
   markedOpts.headerIds = false
   delete markedOpts.headerPrefix
+
   // mangle
   if (markedOpts.mangle) {
     delete markedOpts.mangle
@@ -119,7 +114,7 @@ function mdr(mdtext, opts, tocContainer) {
 
   const latexHtml = html
 
-  if (typeof tocContainer === 'object') {
+  if (typeof tocContainer === 'object' && tocContainer !== null) {
     tocContainer.value = mdrRenderer.toc
   }
 
