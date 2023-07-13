@@ -12,7 +12,6 @@ import hljs from 'highlight.js' // all languages
 // import 'katex/contrib/mhchem/mhchem.js'
 // import 'katex/dist/katex.min.css'
 import {marked, Marked} from 'marked'
-import {markedHighlight} from 'marked-highlight'
 import {mangle} from 'marked-mangle'
 
 import DOMPurify from 'dompurify'
@@ -20,6 +19,7 @@ import DOMPurify from 'dompurify'
 import mermaid from 'mermaid'
 
 import {extBaseUrl} from './ext-base-url.js'
+import {extCode} from './ext-code.js'
 import {MdrRenderer} from './renderer.js'
 
 mermaid.initialize({startOnLoad: false})
@@ -44,7 +44,8 @@ const defaultMarkedHighlightOpts = {
   langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class
   highlight(code, lang) {
     const language = hljs.getLanguage(lang) ? lang : 'plaintext'
-    return hljs.highlight(code, {language}).value
+    const result = hljs.highlight(code, {language})
+    return result.value
   }
 }
 
@@ -63,19 +64,19 @@ const defaultMarkedHighlightOpts = {
  * @returns {string} the rendered HTML
  */
 function mdr(mdtext, opts, tocContainer) {
-  let markedOpts = marked.getDefaults()
+  // create new instance so that we can use different options
+  const markedInstance = new Marked()
+
   opts = typeof opts === 'object' && opts != null ? opts : {}
-  markedOpts = {...markedOpts, ...defaultMarkedOpts, ...opts} // merge options
+  const markedOpts = {...defaultMarkedOpts, ...opts} // merge options
   for (const key in markedOpts) {
     if (markedOpts[key] == null) {
       delete markedOpts[key]
     }
   }
+
   const mdrRenderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
   markedOpts.renderer = mdrRenderer
-
-  // create new instance so that we can use different options
-  const markedInstance = new Marked(marked.getDefaults())
 
   // // process all instances of [[do-tag...]] first
   // const tags = typeof opts['tags'] == 'object' ? opts['tags'] : {}
@@ -89,6 +90,11 @@ function mdr(mdtext, opts, tocContainer) {
     }
     delete markedOpts.baseUrl
   }
+  // source code syntax highlight
+  // const markedHighlightOpts = typeof markedOpts.highlight === 'object' && markedOpts.highlight != null
+  //   ? {...markedOpts.highlight}
+  //   : {...defaultMarkedHighlightOpts}
+  // markedInstance.use(extCode({...markedOpts, ...markedHighlightOpts}))
   // header ids
   markedOpts.headerIds = false
   delete markedOpts.headerPrefix
@@ -97,11 +103,6 @@ function mdr(mdtext, opts, tocContainer) {
     delete markedOpts.mangle
     markedInstance.use(mangle())
   }
-  // source code syntax highlight
-  const markedHighlightOpts = typeof markedOpts.highlight === 'object' && markedOpts.highlight != null
-    ? {...markedOpts.highlight}
-    : {...defaultMarkedHighlightOpts}
-  markedInstance.use(markedHighlight(markedHighlightOpts))
 
   const html = opts.inline ? markedInstance.parseInline(mdtext, markedOpts) : markedInstance.parse(mdtext, markedOpts)
 

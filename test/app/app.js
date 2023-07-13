@@ -1,5 +1,15 @@
 import {mdr} from '../../src/index.js'
 
-const md = '# heading 1\n\n## heading 2'
-const opts = {headerIds: true, headerPrefix: 'h-'}
-console.log(mdr(md, opts))
+// export function extDummy() {
+//   return {
+//     name: 'code',
+//     walkTokens(token) {
+//       console.log('[DEBUG]', token)
+//     }
+//   }
+// }
+
+// const md = '```javascript\nconsole.log("Hello World!")\n```'
+// const opts = {__extensions: [extDummy()]}
+const md = '# heading'
+console.log(mdr(md))

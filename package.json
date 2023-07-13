@@ -25,7 +25,6 @@
   "dependencies": {
     "dompurify": "^3.0.4",
     "github-slugger": "^2.0.0",
-    "highlight.js": "^11.8.0",
     "katex": "^0.16.8",
     "marked": "^5.1.1",
     "marked-highlight": "^2.0.1",
