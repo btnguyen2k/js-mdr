@@ -2,7 +2,7 @@
  Custom renderer for marked.
 
  Author: Thanh Nguyen <btnguyen2k (at) gmail (dot) com>
- Home  : https://github.com/btnguyen2k/mdr
+ Home  : https://github.com/btnguyen2k/js-mdr
  */
 import {marked} from 'marked'
 import GithubSlugger from 'github-slugger'

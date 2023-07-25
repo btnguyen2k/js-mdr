@@ -2,7 +2,7 @@
  mdr - parse and render Markdown with rich extensions.
 
  Author: Thanh Nguyen <btnguyen2k (at) gmail (dot) com>
- Home  : https://github.com/btnguyen2k/mdr
+ Home  : https://github.com/btnguyen2k/js-mdr
  */
 
 // import katex from 'katex'

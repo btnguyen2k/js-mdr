@@ -22,12 +22,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Run Tests
-        run: |
-          pwd
-          ls
-          node --version
-          npm --version
-          npm run test
+        run: npm run test
 
   Coverage:
     runs-on: ubuntu-latest

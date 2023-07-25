@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/btnguyen2k/mdr.git"
+    "url": "git+https://github.com/btnguyen2k/js-mdr.git"
   },
   "keywords": [
     "Markdown"
@@ -32,9 +32,9 @@
   "author": "Thanh Nguyen <btnguyen2k (at) gmail (dot) com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/btnguyen2k/mdr/issues"
+    "url": "https://github.com/btnguyen2k/js-mdr/issues"
   },
-  "homepage": "https://github.com/btnguyen2k/mdr#readme",
+  "homepage": "https://github.com/btnguyen2k/js-mdr#readme",
   "dependencies": {
     "@btnguyen2k/checksum": "^0.1.2",
     "dompurify": "^3.0.4",
