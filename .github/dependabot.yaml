@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    versioning-strategy: "increase-if-necessary"
+#    ignore:
+#      - dependency-name: "*"
+#        update-types: [ "version-update:semver-major" ] # do not update to major version as it may contain breaking changes
