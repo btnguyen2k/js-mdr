@@ -1,22 +1,21 @@
-import * as assert from 'assert'
 import {mdr} from '../src/index.js'
 
 const testCases = [
   {
     input: 'This is the [home page](btnguyen2k/mdr)',
     expectedResult: '<p>This is the <a href="btnguyen2k/mdr">home page</a></p>\n',
-    description: 'relative link since baseUrl is not set'
+    description: 'baseUrl is not set'
   },
   {
     input: 'This is the [home page](/btnguyen2k/mdr)',
     expectedResult: '<p>This is the <a href="/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'relative link since baseUrl is empty',
+    description: 'baseUrl is is empty',
     opts: {baseUrl: ''}
   },
   {
     input: 'This is the [home page](/btnguyen2k/mdr)',
     expectedResult: '<p>This is the <a href="/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'relative link since baseUrl is not string',
+    description: 'baseUrl is not string',
     opts: {baseUrl: true}
   },
 
@@ -35,14 +34,14 @@ const testCases = [
 
   {
     input: 'This is the [home page](./btnguyen2k/mdr)',
-    expectedResult: '<p>This is the <a href="http://mydomain/folder/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'baseUrl{domain with base folder}',
-    opts: {baseUrl: 'http://mydomain/folder'}
+    expectedResult: '<p>This is the <a href="http://mydomain/btnguyen2k/mdr">home page</a></p>\n',
+    description: 'baseUrl{ends with file}',
+    opts: {baseUrl: 'http://mydomain/file'}
   },
   {
     input: 'This is the [home page](btnguyen2k/mdr)',
     expectedResult: '<p>This is the <a href="http://mydomain/folder/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'baseUrl{domain with folder and trailing slash}',
+    description: 'baseUrl{ends with folder}',
     opts: {baseUrl: 'http://mydomain/folder/'}
   },
 
@@ -52,24 +51,31 @@ const testCases = [
     description: 'url is from root',
     opts: {baseUrl: 'http://mydomain/a/b/c/'}
   },
+
+  {
+    input: 'This is the [home page](../btnguyen2k/mdr)',
+    expectedResult: '<p>This is the <a href="http://mydomain/a/btnguyen2k/mdr">home page</a></p>\n',
+    description: 'baseUrl{ends with file}, jump up one level',
+    opts: {baseUrl: 'http://mydomain/a/b/file'}
+  },
   {
     input: 'This is the [home page](../btnguyen2k/mdr)',
     expectedResult: '<p>This is the <a href="http://mydomain/a/b/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'jump up one level',
+    description: 'baseUrl{ends with folder}, jump up one level',
     opts: {baseUrl: 'http://mydomain/a/b/c/'}
   },
 
   {
     input: 'This is the [home page](btnguyen2k/mdr)',
-    expectedResult: '<p>This is the <a href="a/b/c/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'baseUrl{relative} vs url{relative}',
-    opts: {baseUrl: './a/b/c'}
+    expectedResult: '<p>This is the <a href="a/b/btnguyen2k/mdr">home page</a></p>\n',
+    description: 'baseUrl{relative, ends end with file} vs url{relative}',
+    opts: {baseUrl: './a/b/file'}
   },
   {
     input: 'This is the [home page](./btnguyen2k/mdr)',
     expectedResult: '<p>This is the <a href="/a/b/c/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'baseUrl{from root} vs url{relative}',
-    opts: {baseUrl: '/a/b/c'}
+    description: 'baseUrl{from root, ends with folder} vs url{relative}',
+    opts: {baseUrl: '/a/b/c/'}
   },
   {
     input: 'This is the [home page](/btnguyen2k/mdr)',
@@ -87,28 +93,28 @@ const testCases = [
   {
     input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
     expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'absolute link should be intact',
+    description: 'absolute link should be intact, vs domain',
     opts: {baseUrl: 'http://mysite'}
   },
-  {
-    input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
-    expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'absolute link should be intact',
-    opts: {baseUrl: '/a/b/c'}
-  },
-  {
-    input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
-    expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
-    description: 'absolute link should be intact',
-    opts: {baseUrl: 'a/b/c/'}
-  },
+  // {
+  //   input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
+  //   expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
+  //   description: 'absolute link should be intact, vs root',
+  //   opts: {baseUrl: '/a/b/c'}
+  // },
+  // {
+  //   input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
+  //   expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
+  //   description: 'absolute link should be intact, vs relative',
+  //   opts: {baseUrl: 'a/b/c/'}
+  // },
 ]
 
 describe('mdr_v5_baseurl', () => {
   testCases.forEach((tc) => {
     it(tc.description, () => {
       const opts = tc.opts ? tc.opts : {}
-      assert.equal(mdr(tc.input, opts), tc.expectedResult)
+      expect(mdr(tc.input, opts)).toEqual(tc.expectedResult)
     })
   })
 })

@@ -26,31 +26,11 @@ export class MdrRenderer extends marked.Renderer {
     this.headerPrefix = headerPrefix
   }
 
-  // code(code, infostring, escaped) {
-  //   const lang = (infostring || '').match(/\S*/)[0];
-  //   if (this.options.highlight) {
-  //     const out = this.options.highlight(code, lang);
-  //     if (out != null && out !== code) {
-  //       escaped = true;
-  //       code = out;
-  //     }
-  //   }
-  //
-  //   code = code.replace(/\n$/, '') + '\n';
-  //
-  //   if (!lang) {
-  //     return '<pre><code>'
-  //       + (escaped ? code : escape(code, true))
-  //       + '</code></pre>\n';
-  //   }
-  //
-  //   return '<pre><code class="'
-  //     + this.options.langPrefix
-  //     + escape(lang)
-  //     + '">'
-  //     + (escaped ? code : escape(code, true))
-  //     + '</code></pre>\n';
-  // }
+  code(code, infostring, escaped) {
+    const output = super.code(code, infostring, escaped)
+    console.log('[DEBUG] - code', output)
+    return output
+  }
 
   heading(text, level, raw, slugger) {
     if (this.slugger) {

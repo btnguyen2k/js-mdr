@@ -5,24 +5,24 @@
  Home  : https://github.com/btnguyen2k/mdr
  */
 
-// import 'highlight.js/styles/default.css'
-import hljs from 'highlight.js' // all languages
-
 // import katex from 'katex'
 // import 'katex/contrib/mhchem/mhchem.js'
 // import 'katex/dist/katex.min.css'
 import {Marked} from 'marked'
+import {baseUrl} from 'marked-base-url'
 import {mangle} from 'marked-mangle'
-
-import DOMPurify from 'dompurify'
-
-import mermaid from 'mermaid'
-
-import {extBaseUrl} from './ext-base-url.js'
 import {extCode} from './ext-code.js'
 import {MdrRenderer} from './renderer.js'
 
-mermaid.initialize({startOnLoad: false})
+import {checksum} from '@btnguyen2k/checksum'
+
+// import mermaid from 'mermaid'
+// mermaid.initialize({startOnLoad: false})
+
+import {JSDOM} from 'jsdom'
+import DOMPurify from 'dompurify'
+const window = new JSDOM('').window
+const purify = DOMPurify(window)
 
 const defaultMarkedOpts = {
   gfm: true,
@@ -39,14 +39,45 @@ const defaultMarkedOpts = {
   },
 }
 
-// default: use highlight.js to highlight source code
-const defaultMarkedHighlightOpts = {
-  langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class
-  highlight(code, lang) {
-    const language = hljs.getLanguage(lang) ? lang : 'plaintext'
-    const result = hljs.highlight(code, {language})
-    return result.value
+const cachedInstances = {}
+function getCachedInstance(markedOpts) {
+  const hash = checksum(markedOpts, {disable_warning_cyclic: true})
+  if (cachedInstances[hash]) {
+    return cachedInstances[hash]
   }
+  const markedInstance = new Marked()
+
+  const mdrRenderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
+  markedInstance.defaults.renderer = mdrRenderer
+
+  /* marked v5.x */
+  // baseUrl
+  if (markedOpts.baseUrl) {
+    if (typeof markedOpts.baseUrl === 'string' && markedOpts.baseUrl.trim() !== '') {
+      markedInstance.use(baseUrl(markedOpts.baseUrl))
+    }
+    delete markedOpts.baseUrl
+  }
+
+  // source code syntax highlight
+  markedInstance.use(extCode(markedOpts))
+  delete markedOpts.langPrefix
+  delete markedOpts.highlight
+
+  // header ids
+  markedOpts.headerIds = false
+  delete markedOpts.headerPrefix
+
+  // mangle
+  if (markedOpts.mangle) {
+    delete markedOpts.mangle
+    markedInstance.use(mangle())
+  }
+
+  markedInstance.sanitizedOpts = markedOpts
+
+  cachedInstances[hash] = markedInstance
+  return markedInstance
 }
 
 /**
@@ -60,46 +91,30 @@ const defaultMarkedHighlightOpts = {
  *     - add_tags (array): additional tags to allow, default is ['iframe']
  *     - add_data_uri_tags (array): additional tags to allow data URI, default is ['iframe']
  *     - add_attr (array): additional attributes to allow, default is ['target', 'allow']
+ *   Marked options that should be used instead of extensions:
+ *   - baseUrl: if baseUrl option is present, marked-base-url extension is enabled. Do not use marked-base-url directly.
+ *   - headerIds/headerPrefix: if headerIds/header option is present, headings are generated with id attribute. Do not use marked-gfm-heading-id directly.
+ *   - mangle: if mangle option is present, marked-mangle extension is enabled. Do not use marked-mangle directly.
+ *   - highlight/langPrefix: source code syntax highlight is enabled by default with highlight.js. Supply custom highlight
+ *     function and/or langPrefix via these options. Do not use marked-highlight directly.
  * @param {object} tocContainer (optional) container to store the generated table of content
  * @returns {string} the rendered HTML
  */
 function mdr(mdtext, opts = {}, tocContainer = null) {
   opts = typeof opts === 'object' && opts != null ? opts : {}
-  const markedOpts = {...defaultMarkedOpts, ...opts} // merge options
+  let markedOpts = {...defaultMarkedOpts, ...opts} // merge options
   for (const key in markedOpts) {
     if (markedOpts[key] == null) {
       delete markedOpts[key]
     }
   }
 
-  const mdrRenderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
-  markedOpts.renderer = mdrRenderer
-  // create new instance so that we can use different options
-  const markedInstance = new Marked({renderer: mdrRenderer})
+  const markedInstance = getCachedInstance(markedOpts)
+  markedOpts = markedInstance.sanitizedOpts
 
-  /* marked v5.x */
-  // baseUrl
-  if (markedOpts.baseUrl) {
-    if (typeof markedOpts.baseUrl === 'string' && markedOpts.baseUrl.trim() !== '') {
-      markedInstance.use(extBaseUrl(markedOpts.baseUrl))
-    }
-    delete markedOpts.baseUrl
-  }
-
-  // source code syntax highlight
-  markedInstance.use(extCode(markedOpts))
-
-  // header ids
-  markedOpts.headerIds = false
-  delete markedOpts.headerPrefix
-
-  // mangle
-  if (markedOpts.mangle) {
-    delete markedOpts.mangle
-    markedInstance.use(mangle())
-  }
-
-  const html = opts.inline ? markedInstance.parseInline(mdtext, markedOpts) : markedInstance.parse(mdtext, markedOpts)
+  const html = opts.inline
+    ? markedInstance.parseInline(mdtext, markedOpts)
+    : markedInstance.parse(mdtext, markedOpts)
 
   // //render: katex
   // const latexHtml = html.replace(reKatexId, (_match, capture) => {
@@ -114,21 +129,21 @@ function mdr(mdtext, opts = {}, tocContainer = null) {
 
   const latexHtml = html
 
-  if (typeof tocContainer === 'object' && tocContainer !== null) {
-    tocContainer.value = mdrRenderer.toc
-  }
+  // if (typeof tocContainer === 'object' && tocContainer !== null) {
+  //   tocContainer.value = mdrRenderer.toc
+  // }
 
   let ADD_TAGS = ['iframe']
   let ADD_DATA_URI_TAGS = ['iframe']
   let ADD_ATTR = ['target', 'allow']
-  if (opts.safety_opts) {
-    ADD_TAGS = opts.safety_opts.add_tags ? opts.safety_opts.add_tags : ADD_TAGS
-    ADD_DATA_URI_TAGS = opts.safety_opts.add_data_uri_tags ? opts.safety_opts.add_data_uri_tags : ADD_DATA_URI_TAGS
-    ADD_ATTR = opts.safety_opts.add_attr ? opts.safety_opts.add_attr : ADD_ATTR
+  if (markedOpts.safety_opts) {
+    ADD_TAGS = markedOpts.safety_opts.add_tags ? markedOpts.safety_opts.add_tags : ADD_TAGS
+    ADD_DATA_URI_TAGS = markedOpts.safety_opts.add_data_uri_tags ? markedOpts.safety_opts.add_data_uri_tags : ADD_DATA_URI_TAGS
+    ADD_ATTR = markedOpts.safety_opts.add_attr ? markedOpts.safety_opts.add_attr : ADD_ATTR
   }
 
-  return opts.safety
-    ? DOMPurify.sanitize(latexHtml, {
+  return markedOpts.safety
+    ? purify.sanitize(latexHtml, {
       ADD_TAGS,
       ADD_DATA_URI_TAGS, // allow iframe tag for GitHub Gist and Youtube videos
       ADD_ATTR, // allow target and allow attributes for a and iframe tags

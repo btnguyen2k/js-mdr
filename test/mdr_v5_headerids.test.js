@@ -1,4 +1,3 @@
-import * as assert from 'assert'
 import {mdr} from '../src/index.js'
 
 const testCases = [
@@ -25,7 +24,7 @@ describe('mdr_v5_headerids', () => {
   testCases.forEach((tc) => {
     it(tc.description, () => {
       const opts = tc.opts ? tc.opts : {}
-      assert.equal(mdr(tc.input, opts), tc.expectedResult)
+      expect(tc.expectedResult).toEqual(mdr(tc.input, opts))
     })
   })
 })
