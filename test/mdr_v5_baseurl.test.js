@@ -96,25 +96,24 @@ const testCases = [
     description: 'absolute link should be intact, vs domain',
     opts: {baseUrl: 'http://mysite'}
   },
-  // {
-  //   input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
-  //   expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
-  //   description: 'absolute link should be intact, vs root',
-  //   opts: {baseUrl: '/a/b/c'}
-  // },
-  // {
-  //   input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
-  //   expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
-  //   description: 'absolute link should be intact, vs relative',
-  //   opts: {baseUrl: 'a/b/c/'}
-  // },
+  {
+    input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
+    expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
+    description: 'absolute link should be intact, vs root',
+    opts: {baseUrl: '/a/b/c'}
+  },
+  {
+    input: 'This is the [home page](http://localhost/btnguyen2k/mdr)',
+    expectedResult: '<p>This is the <a href="http://localhost/btnguyen2k/mdr">home page</a></p>\n',
+    description: 'absolute link should be intact, vs relative',
+    opts: {baseUrl: 'a/b/c/'}
+  },
 ]
 
 describe('mdr_v5_baseurl', () => {
   testCases.forEach((tc) => {
     it(tc.description, () => {
-      const opts = tc.opts ? tc.opts : {}
-      expect(mdr(tc.input, opts)).toEqual(tc.expectedResult)
+      expect(mdr(tc.input, tc.opts)).toEqual(tc.expectedResult)
     })
   })
 })

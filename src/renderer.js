@@ -12,16 +12,17 @@ export class MdrRenderer extends marked.Renderer {
   slugger
   headerPrefix
 
-  constructor(options) {
+  constructor(opts) {
+    opts = typeof opts === 'object' && opts != null ? opts : {}
     let slugger = null
     let headerPrefix = ''
-    if (options.headerIds || options.headerPrefix) {
-      headerPrefix = typeof options.headerPrefix === 'string' ? options.headerPrefix : ''
+    if (opts.headerIds || opts.headerPrefix) {
+      headerPrefix = typeof opts.headerPrefix === 'string' ? opts.headerPrefix : ''
       slugger = new GithubSlugger()
-      options.headerIds = false
-      delete options.headerPrefix
+      opts.headerIds = false
+      delete opts.headerPrefix
     }
-    super(options)
+    super(opts)
     this.slugger = slugger
     this.headerPrefix = headerPrefix
   }

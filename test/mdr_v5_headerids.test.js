@@ -29,8 +29,7 @@ const testCases = [
 describe('mdr_v5_headerids', () => {
   testCases.forEach((tc) => {
     it(tc.description, () => {
-      const opts = tc.opts ? tc.opts : {}
-      expect(tc.expectedResult).toEqual(mdr(tc.input, opts))
+      expect(tc.expectedResult).toEqual(mdr(tc.input, tc.opts))
     })
   })
 })

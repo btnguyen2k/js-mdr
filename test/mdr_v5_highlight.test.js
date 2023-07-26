@@ -37,8 +37,7 @@ const testCases = [
 describe('mdr_v5_highlight', () => {
   testCases.forEach((tc) => {
     it(tc.description, () => {
-      const opts = tc.opts ? tc.opts : {}
-      const output = mdr(tc.input, opts)
+      const output = mdr(tc.input, tc.opts)
       expect(output).toEqual(tc.expectedResult)
     })
   })

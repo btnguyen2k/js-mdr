@@ -41,7 +41,7 @@ const defaultMarkedOpts = {
 
 const cachedInstances = {}
 function getCachedInstance(markedOpts) {
-  const hash = checksum(markedOpts, {disable_warning_cyclic: true})
+  const hash = checksum(markedOpts, {disable_warning_cyclic: true, hash: 'sha256'})
   if (cachedInstances[hash]) {
     return cachedInstances[hash]
   }
@@ -90,7 +90,7 @@ function getCachedInstance(markedOpts) {
  *   - safety_opts (object): sub-options:
  *     - add_tags (array): additional tags to allow, default is ['iframe']
  *     - add_data_uri_tags (array): additional tags to allow data URI, default is ['iframe']
- *     - add_attr (array): additional attributes to allow, default is ['target', 'allow']
+ *     - add_attrs (array): additional attributes to allow, default is ['target', 'allow']
  *   Marked options that should be used instead of extensions:
  *   - baseUrl: if baseUrl option is present, marked-base-url extension is enabled. Do not use marked-base-url directly.
  *   - headerIds/headerPrefix: if headerIds/header option is present, headings are generated with id attribute. Do not use marked-gfm-heading-id directly.
@@ -134,19 +134,19 @@ function mdr(mdtext, opts = {}, tocContainer = null) {
   // }
 
   let ADD_TAGS = ['iframe']
-  let ADD_DATA_URI_TAGS = ['iframe']
-  let ADD_ATTR = ['target', 'allow']
+  let ADD_DATA_URI_TAGS = ['iframe'] // allow iframe tag for GitHub Gist and Youtube videos
+  let ADD_ATTRS = ['target', 'allow'] // allow target and allow attributes for a and iframe tags
   if (markedOpts.safety_opts) {
     ADD_TAGS = markedOpts.safety_opts.add_tags ? markedOpts.safety_opts.add_tags : ADD_TAGS
     ADD_DATA_URI_TAGS = markedOpts.safety_opts.add_data_uri_tags ? markedOpts.safety_opts.add_data_uri_tags : ADD_DATA_URI_TAGS
-    ADD_ATTR = markedOpts.safety_opts.add_attr ? markedOpts.safety_opts.add_attr : ADD_ATTR
+    ADD_ATTRS = markedOpts.safety_opts.add_attrs ? markedOpts.safety_opts.add_attrs : ADD_ATTRS
   }
 
   return markedOpts.safety
     ? purify.sanitize(latexHtml, {
-      ADD_TAGS,
-      ADD_DATA_URI_TAGS, // allow iframe tag for GitHub Gist and Youtube videos
-      ADD_ATTR, // allow target and allow attributes for a and iframe tags
+      ADD_TAGS: ADD_TAGS,
+      ADD_DATA_URI_TAGS: ADD_DATA_URI_TAGS,
+      ADD_ATTR: ADD_ATTRS,
     })
     : latexHtml
 }
