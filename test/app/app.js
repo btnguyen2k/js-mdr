@@ -1,4 +1,8 @@
 import {mdr} from '../../src/index.js'
 
-const md = '```javascript\n```'
-console.log(mdr(md, {langPrefix: 'l-'}))
+const md = '```plaintext\na<b\n```'
+console.log(mdr(md, {
+  highlight(code, lang) {
+    return code
+  }
+}))

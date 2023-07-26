@@ -26,11 +26,11 @@ export class MdrRenderer extends marked.Renderer {
     this.headerPrefix = headerPrefix
   }
 
-  code(code, infostring, escaped) {
-    const output = super.code(code, infostring, escaped)
-    console.log('[DEBUG] - code', output)
-    return output
-  }
+  // code(code, infostring, escaped) {
+  //   const output = super.code(code, infostring, escaped)
+  //   console.log('[DEBUG] - code', output)
+  //   return output
+  // }
 
   heading(text, level, raw, slugger) {
     if (this.slugger) {

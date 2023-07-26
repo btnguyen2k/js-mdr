@@ -12,6 +12,26 @@ const testCases = [
     description: 'code highlight with custom langPrefix',
     opts: {langPrefix: 'l-'}
   },
+  {
+    input: '```plain\na<b\n```',
+    expectedResult: '<pre><code class="hljs language-plain">a&lt;b\n</code></pre>',
+    description: 'plaintext',
+  },
+  {
+    input: '```\na>b\n```',
+    expectedResult: '<pre><code class="hljs language-plaintext">a&gt;b\n</code></pre>',
+    description: 'plaintext is default',
+  },
+  {
+    input: '```\na>b\n```',
+    expectedResult: '<pre><code class="hljs language-plaintext">a&gt;b\n</code></pre>',
+    description: 'custom highlighter',
+    opts: {
+      highlight(code, lang) {
+        return code
+      }
+    }
+  },
 ]
 
 describe('mdr_v5_highlight', () => {

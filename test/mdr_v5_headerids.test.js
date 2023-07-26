@@ -18,6 +18,12 @@ const testCases = [
     description: 'header ids with prefix',
     opts: {headerPrefix: 'h-'}
   },
+  {
+    input: '# heading 1\n\n## heading 2\n\n### heading 3',
+    expectedResult: '<h1 id="heading-1">heading 1</h1>\n<h2 id="heading-2">heading 2</h2>\n<h3 id="heading-3">heading 3</h3>\n',
+    description: 'invalid prefix',
+    opts: {headerPrefix: false}
+  },
 ]
 
 describe('mdr_v5_headerids', () => {

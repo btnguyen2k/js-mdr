@@ -19,11 +19,11 @@ const defaultMarkedHighlightOpts = {
 }
 
 function escapeHtml(html) {
-  return html.replace(/</g, '&lt;')
+  return html.replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
-    .replace(/&/g, '&amp;')
 }
 
 export function extCode(options) {

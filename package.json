@@ -43,7 +43,7 @@
     "jsdom": "^22.1.0",
     "katex": "^0.16.8",
     "marked": "^5.1.1",
-    "marked-base-url": "^1.0.2",
+    "marked-base-url": "^1.0.3",
     "marked-mangle": "^1.1.0",
     "mermaid": "^10.2.4"
   },
