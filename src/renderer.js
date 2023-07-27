@@ -8,10 +8,6 @@ import {marked} from 'marked'
 import GithubSlugger from 'github-slugger'
 
 export class MdrRenderer extends marked.Renderer {
-  toc = []
-  slugger
-  headerPrefix
-
   constructor(opts) {
     opts = typeof opts === 'object' && opts != null ? opts : {}
     let slugger = null
@@ -27,17 +23,16 @@ export class MdrRenderer extends marked.Renderer {
     this.headerPrefix = headerPrefix
   }
 
-  // code(code, infostring, escaped) {
-  //   const output = super.code(code, infostring, escaped)
-  //   console.log('[DEBUG] - code', output)
-  //   return output
-  // }
-
   heading(text, level, raw, slugger) {
     if (this.slugger) {
       const id = this.headerPrefix + this.slugger.slug(raw)
-      this.toc.push({id, level, text})
+      if (this.tocContainer) {
+        this.tocContainer.push({id, level, text})
+      }
       return `<h${level} id="${id}">${text}</h${level}>\n`
+    }
+    if (this.tocContainer) {
+      this.tocContainer.push({id: '', level, text})
     }
     return `<h${level}>${text}</h${level}>\n`
   }

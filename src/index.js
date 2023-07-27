@@ -40,15 +40,15 @@ const defaultMarkedOpts = {
 }
 
 const cachedInstances = {}
-function getCachedInstance(markedOpts) {
-  const hash = checksum(markedOpts, {disable_warning_cyclic: true, hash: 'sha256'})
+function getCachedInstance(opts) {
+  const markedOpts = {...opts}
+  const hash = checksum(markedOpts, {disable_warning_cyclic: true})
+  const markedInstance = cachedInstances[hash] ? cachedInstances[hash] : new Marked()
   if (cachedInstances[hash]) {
-    return cachedInstances[hash]
+    return markedInstance
   }
-  const markedInstance = new Marked()
-
-  const mdrRenderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
-  markedInstance.defaults.renderer = mdrRenderer
+  const renderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
+  markedInstance.defaults.renderer = renderer
 
   /* marked v5.x */
   // baseUrl
@@ -91,16 +91,16 @@ function getCachedInstance(markedOpts) {
  *     - add_tags (array): additional tags to allow, default is ['iframe']
  *     - add_data_uri_tags (array): additional tags to allow data URI, default is ['iframe']
  *     - add_attrs (array): additional attributes to allow, default is ['target', 'allow']
+ *   - toc_container (array): if supplied, the generated table of content will be pushed to this array
  *   Marked options that should be used instead of extensions:
  *   - baseUrl: if baseUrl option is present, marked-base-url extension is enabled. Do not use marked-base-url directly.
  *   - headerIds/headerPrefix: if headerIds/header option is present, headings are generated with id attribute. Do not use marked-gfm-heading-id directly.
  *   - mangle: if mangle option is present, marked-mangle extension is enabled. Do not use marked-mangle directly.
  *   - highlight/langPrefix: source code syntax highlight is enabled by default with highlight.js. Supply custom highlight
  *     function and/or langPrefix via these options. Do not use marked-highlight directly.
- * @param {object} tocContainer (optional) container to store the generated table of content
  * @returns {string} the rendered HTML
  */
-function mdr(mdtext, opts = {}, tocContainer = null) {
+function mdr(mdtext, opts = {}) {
   opts = typeof opts === 'object' && opts != null ? opts : {}
   let markedOpts = {...defaultMarkedOpts, ...opts} // merge options
   for (const key in markedOpts) {
@@ -111,6 +111,9 @@ function mdr(mdtext, opts = {}, tocContainer = null) {
 
   const markedInstance = getCachedInstance(markedOpts)
   markedOpts = markedInstance.sanitizedOpts
+
+  const renderer = markedInstance.defaults.renderer
+  renderer.tocContainer = opts.toc_container
 
   const html = opts.inline
     ? markedInstance.parseInline(mdtext, markedOpts)
@@ -128,10 +131,6 @@ function mdr(mdtext, opts = {}, tocContainer = null) {
   // })
 
   const latexHtml = html
-
-  // if (typeof tocContainer === 'object' && tocContainer !== null) {
-  //   tocContainer.value = mdrRenderer.toc
-  // }
 
   let ADD_TAGS = ['iframe']
   let ADD_DATA_URI_TAGS = ['iframe'] // allow iframe tag for GitHub Gist and Youtube videos
