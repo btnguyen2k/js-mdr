@@ -22,6 +22,7 @@ export default {
     'node_modules/(?!'
     + [
       'github-slugger',
+      'katex',
       'mermaid',
       'ts-dedent',
     ].join('|')

@@ -1,11 +1,14 @@
 /**
- base-url - marked extension to handle ``` block.
+ ext-code - marked extension to handle code block (e.g. text blocks enclosed by triple back-sticks ```).
 
  Author: Thanh Nguyen <btnguyen2k (at) gmail (dot) com>
  Home  : https://github.com/btnguyen2k/js-mdr
+
+ Usage:
+ - MDR enables this extension by default.
+ - Remember to import highlight.js stylesheets to your app (e.g. import 'highlight.js/styles/default.css').
  */
 
-// import 'highlight.js/styles/default.css'
 import hljs from 'highlight.js' // all languages
 
 // default: use highlight.js to highlight source code

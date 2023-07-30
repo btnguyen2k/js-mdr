@@ -1,58 +1,26 @@
 import {mdr} from '../../src/index.js'
 
-// const testCases = [
-//   {
-//     input: '```javascript\n```',
-//     expectedResult: '<pre><code class="hljs language-javascript">\n</code></pre>',
-//     description: 'code highlight on by default',
-//   },
-//   {
-//     input: '```go\n```',
-//     expectedResult: '<pre><code class="l-go">\n</code></pre>',
-//     description: 'code highlight with custom langPrefix',
-//     opts: {langPrefix: 'l-'}
-//   },
-//   {
-//     input: '```plain\na<b\n```',
-//     expectedResult: '<pre><code class="hljs language-plain">a&lt;b\n</code></pre>',
-//     description: 'plaintext',
-//   },
-//   {
-//     input: '```\na>b\n```',
-//     expectedResult: '<pre><code class="hljs language-plaintext">a&gt;b\n</code></pre>',
-//     description: 'plaintext is default',
-//   },
-//   {
-//     input: '```\na>b\n```',
-//     expectedResult: '<pre><code class="hljs language-plaintext">a&gt;b\n</code></pre>',
-//     description: 'custom highlighter',
-//     opts: {
-//       highlight(code, lang) {
-//         return code
-//       }
-//     }
-//   },
-// ]
-//
-// testCases.forEach((tc) => {
-//   const output = mdr(tc.input, tc.opts)
-//   console.log(tc.description, output)
-//   console.log('--------------------------------------------------')
-// })
+const testCases = [
+  {input: 'This is Katex: $x^2 + y^2 = z^2$ and this is not: $x^2 + y^2 = z^2'},
+  {input: 'This is multi-Katex case: $x^2$ + $y^2$ = $z^2$ and this is not: $x^2 + y^2 = z^2'},
+  {input: '$\\ce{2H2 + O2 -> H2O}$'},
+  {input: 'This is not Katex \\$a = b + c$'},
+  {input: 'This is also not Katex $$\na= b + c\n$$'},
+]
 
-const input1 = '# heading A\n## heading A.1\n## heading A.2\n# heading B'
-const opts1 = {
-  headerIds: false,
-  toc_container: []
-}
-console.log(mdr(input1, opts1))
-console.log(opts1.toc_container)
+// const inlineStartRule = /(\s|^)\$([^$]+)\$/
+for (const tc of testCases) {
+  console.log('------------------------------------------------------------')
+  console.log('INPUT: ', tc.input)
+  // const inlineStartRule = /(?<=\s|^)\${1,2}(?!\$)/
+  // const inlineRule = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])+?)(?<!\$)\1(?=\s|$)/
+  // const match = tc.input.match(inlineStartRule)
+  // if (!match) {
+  //   continue
+  // }
+  // const possibleKatex = tc.input.substring(match.index)
+  // console.log('POSSIBLE KATEX: ', match.index, possibleKatex, possibleKatex.match(inlineRule))
 
-const input2 = '# heading A\n# heading B'
-const opts2 = {
-  headerIds: false,
-  tocContainer: []
+  const html = mdr(tc.input, {safety: false})
+  console.log('OUTPUT: ', html)
 }
-console.log(mdr(input2, opts2))
-console.log(opts1.toc_container)
-console.log(opts2.toc_container)
