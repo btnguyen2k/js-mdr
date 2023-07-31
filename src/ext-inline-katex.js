@@ -21,7 +21,7 @@ export function extInlineKatex(options) {
 }
 
 function createInlineKatexRenderer(options) {
-  const kopts = {output: 'htmlAndMathml', throwOnError: false, ...options, displayMode: false}
+  const kopts = {...options, displayMode: false}
   return (token) => katex.renderToString(token.text, kopts)
 }
 

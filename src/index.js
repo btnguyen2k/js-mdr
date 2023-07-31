@@ -35,6 +35,11 @@ const defaultMarkedOpts = {
     add_data_uri_tags: ['iframe'],
     add_attr: ['target', 'allow'],
   },
+  katex: true,
+  katex_opts: {
+    output: 'htmlAndMathml',
+    throwOnError: false,
+  }
 }
 
 const cachedInstances = {}
@@ -63,7 +68,9 @@ function getCachedInstance(opts) {
   delete markedOpts.highlight
 
   // Katex support
-  markedInstance.use(extInlineKatex(markedOpts.katex_opts))
+  if (markedOpts.katex) {
+    markedInstance.use(extInlineKatex(markedOpts.katex_opts))
+  }
 
   // header ids
   markedOpts.headerIds = false
@@ -93,7 +100,11 @@ function getCachedInstance(opts) {
  *     - add_data_uri_tags (array): additional tags to allow data URI, default is ['iframe']
  *     - add_attrs (array): additional attributes to allow, default is ['target', 'allow']
  *   - toc_container (array): if supplied, the generated table of content will be pushed to this array
+ *   - katex (boolean): if true, KaTeX support is enabled
  *   - katex_opts (object): options for KaTeX, see https://katex.org/docs/options.html
+ *   - code_handlers (object): custom code block handlers. If matched, the code enclosed between ```code_id and ``` will be
+ *   handled by the specified handler. The code_handlers object must be a map of {code_id: handler}. The handler must be an
+ *   object which has a function with signature code(codeText, infoString, escaped) that returns the HTML output.
  *   Marked options that should be used instead of extensions:
  *   - baseUrl: if baseUrl option is present, marked-base-url extension is enabled. Do not use marked-base-url directly.
  *   - headerIds/headerPrefix: if headerIds/header option is present, headings are generated with id attribute. Do not use marked-gfm-heading-id directly.

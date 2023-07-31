@@ -33,6 +33,12 @@ const testCases = [
     expectedResult: '<p>This is also not Katex $$\na= b + c\n$$</p>\n',
     description: 'double $ is not valid inline Katex',
   },
+  {
+    input: 'This is Katex: $y = f(x) = x^2 + 2x + 1$',
+    expectedResult: '<p>This is Katex: $y = f(x) = x^2 + 2x + 1$</p>\n',
+    description: 'Katex is disabled',
+    opts: {katex: false},
+  },
 ]
 
 describe('mdr_katex', () => {
