@@ -8,3 +8,5 @@
   - GFM header-id
 - Code highlight (enabled by default) with [highlight.js](https://highlightjs.org/).
 - Katex math support (enabled by default).
+- GitHub gist support
+- Video (and Youtube) support

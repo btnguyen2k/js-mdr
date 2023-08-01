@@ -33,7 +33,7 @@ export function extCode(options) {
   return {
     renderer: {
       code(code, infoString, escaped) {
-        const lang = (infoString || '*').toLowerCase()
+        const lang = (infoString || '*').split(/\s+/)[0].toLowerCase()
         const handler = codeHandlers[lang] || defaultCodeHandler
         return handler.code ? handler.code(code, infoString, escaped) : catchInvalidCodeHandler.code(code, infoString, escaped)
       }

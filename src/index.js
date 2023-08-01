@@ -11,6 +11,7 @@ import {mangle as markedMangle} from 'marked-mangle'
 import {extCode} from './ext-code.js'
 import {extInlineKatex} from './ext-inline-katex.js'
 import {extCodeKatex} from './ext-code-katex.js'
+import {extCodeGHGist} from './ext-code-ghgist.js'
 import {MdrRenderer} from './renderer.js'
 import {checksum} from '@btnguyen2k/checksum'
 
@@ -36,7 +37,9 @@ const defaultMarkedOpts = {
   katex_opts: {
     output: 'htmlAndMathml',
     throwOnError: false,
-  }
+  },
+  ghgist: true,
+  ghgist_opts: {}
 }
 
 function addCodeHandler(opts, codeId, handler) {
@@ -83,6 +86,11 @@ function getCachedInstance(opts) {
     addCodeHandler(markedOpts, 'katex', extCodeKatex(markedOpts.katex_opts))
   }
 
+  // GitHub Gist support
+  if (markedOpts.ghgist) {
+    addCodeHandler(markedOpts, 'gh-gist', extCodeGHGist(markedOpts.ghgist_opts))
+  }
+
   /* marked v5.x */
   // baseUrl
   if (markedOpts.baseUrl) {
@@ -118,23 +126,25 @@ function getCachedInstance(opts) {
  * @param {string} mdtext the input Markdown text to parse
  * @param {object} opts (optional) provide additional options, or override defaults one.
  *   See available options at https://marked.js.org/using_advanced#options. Other options:
- *   - inline (boolean): if true, the output HTML will not be wrapped in <p> tag
- *   - safety (boolean): if true, the output HTML will be sanitized using DOMPurify, then safety_opts will be used
- *   - safety_opts (object): sub-options:
- *     - add_tags (array): additional tags to allow, default is ['iframe']
- *     - add_data_uri_tags (array): additional tags to allow data URI, default is ['iframe']
- *     - add_attrs (array): additional attributes to allow, default is ['target', 'allow']
- *   - toc_container (array): if supplied, the generated table of content will be pushed to this array
- *   - katex (boolean): if true, KaTeX support is enabled
- *   - katex_opts (object): options for KaTeX, see https://katex.org/docs/options.html
- *   - code_handlers (object): custom code block handlers. If matched, the code enclosed between ```code_id and ``` will be
+ *   - {boolean} inline: if true, the output HTML will not be wrapped in <p> tag
+ *   - {boolean} safety: if true, the output HTML will be sanitized using DOMPurify, then safety_opts will be used
+ *   - {object} safety_opts: sub-options:
+ *     - {array} add_tags: additional tags to allow, default is ['iframe']
+ *     - {array} add_data_uri_tags: additional tags to allow data URI, default is ['iframe']
+ *     - {array} add_attrs: additional attributes to allow, default is ['target', 'allow']
+ *   - {array} toc_container: if supplied, the generated table of content will be pushed to this array
+ *   - {boolean} katex: if true, KaTeX support is enabled
+ *   - {object} katex_opts: options for KaTeX, see https://katex.org/docs/options.html
+ *   - {boolean} ghgist: if true, GitHub Gist support is enabled
+ *   - {object} ghgist_opts: options for GitHub Gist
+ *   - {object} code_handlers: custom code block handlers. If matched, the code enclosed between ```code_id and ``` will be
  *   handled by the specified handler. The code_handlers object must be a map of {code_id: handler}. The handler must be an
  *   object which has a function with signature code(codeText, infoString, escaped) that returns the HTML output.
  *   Marked options that should be used instead of extensions:
- *   - baseUrl: if baseUrl option is present, marked-base-url extension is enabled. Do not use marked-base-url directly.
- *   - headerIds/headerPrefix: if headerIds/header option is present, headings are generated with id attribute. Do not use marked-gfm-heading-id directly.
- *   - mangle: if mangle option is present, marked-mangle extension is enabled. Do not use marked-mangle directly.
- *   - highlight/langPrefix: source code syntax highlight is enabled by default with highlight.js. Supply custom highlight
+ *   - {string} baseUrl: if baseUrl option is present, marked-base-url extension is enabled. Do not use marked-base-url directly.
+ *   - {boolean} headerIds / {string} headerPrefix: if headerIds/headerPrefix option is present, headings are generated with id attribute. Do not use marked-gfm-heading-id directly.
+ *   - {boolean} mangle: if mangle option is present, marked-mangle extension is enabled. Do not use marked-mangle directly.
+ *   - {function} highlight / {string} langPrefix: source code syntax highlight is enabled by default with highlight.js. Supply custom highlight
  *     function and/or langPrefix via these options. Do not use marked-highlight directly.
  * @returns {string} the rendered HTML
  */

@@ -29,8 +29,11 @@ $ npm install -S @btnguyen2k/mdr
 import {mdr} from '@btnguyen2k/mdr'
 
 const markdown = '# Hello World!'
-console.log(mdr(markdown)) // <h1 id="hello-world">Hello World!</h1>
+const options = {} // optional
+console.log(mdr(markdown, options)) // <h1 id="hello-world">Hello World!</h1>
 ```
+
+## Options
 
 ## License
 
