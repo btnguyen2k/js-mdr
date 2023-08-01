@@ -1,7 +1,6 @@
 import {mdr} from '../../src/index.js'
 
-const inputs = ['This is a \\nstring', 'Not Katex: \\$a = b + c', 'Also not Katex: \\$a = b + c$']
-const opts = {katex: true}
+const inputs = ['# Hello World!']
 for (const input of inputs) {
-  console.log(`Input: ${input}\nResult: ${mdr(input, opts)}`)
+  console.log(`Input: ${input}\nResult: ${mdr(input)}`)
 }

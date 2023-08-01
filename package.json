@@ -44,8 +44,7 @@
     "katex": "^0.16.8",
     "marked": "^5.1.1",
     "marked-base-url": "^1.0.3",
-    "marked-mangle": "^1.1.0",
-    "mermaid": "^10.2.4"
+    "marked-mangle": "^1.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.6",
@@ -60,7 +59,7 @@
     "@semantic-release/npm": "^10.0.4",
     "@semantic-release/release-notes-generator": "^11.0.4",
     "babel-jest": "^29.6.1",
-    "dom-compare": "^0.6.0",
+    "dom-compare": "^0.1.1",
     "eslint": "^8.44.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.27.5",

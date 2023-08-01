@@ -6,20 +6,16 @@
  */
 
 import {Marked} from 'marked'
-import {baseUrl} from 'marked-base-url'
-import {mangle} from 'marked-mangle'
+import {baseUrl as markedBaseUrl} from 'marked-base-url'
+import {mangle as markedMangle} from 'marked-mangle'
 import {extCode} from './ext-code.js'
 import {extInlineKatex} from './ext-inline-katex.js'
+import {extCodeKatex} from './ext-code-katex.js'
 import {MdrRenderer} from './renderer.js'
-
 import {checksum} from '@btnguyen2k/checksum'
-
-// import mermaid from 'mermaid'
-// mermaid.initialize({startOnLoad: false})
 
 import {JSDOM} from 'jsdom'
 import DOMPurify from 'dompurify'
-import {extCodeKatex} from "./ext-code-katex.js";
 const window = new JSDOM('').window
 const purify = DOMPurify(window)
 
@@ -41,6 +37,14 @@ const defaultMarkedOpts = {
     output: 'htmlAndMathml',
     throwOnError: false,
   }
+}
+
+function addCodeHandler(opts, codeId, handler) {
+  if (typeof opts.code_handlers !== 'object') {
+    opts.code_handlers = {}
+  }
+  opts.code_handlers[codeId] = handler
+  return opts
 }
 
 const cachedInstances = {}
@@ -76,17 +80,14 @@ function getCachedInstance(opts) {
   // Katex support
   if (markedOpts.katex) {
     markedInstance.use(extInlineKatex(markedOpts.katex_opts))
-    if (typeof markedOpts.code_handlers !== 'object') {
-      markedOpts.code_handlers = {}
-    }
-    markedOpts.code_handlers.katex = extCodeKatex(markedOpts.katex_opts)
+    addCodeHandler(markedOpts, 'katex', extCodeKatex(markedOpts.katex_opts))
   }
 
   /* marked v5.x */
   // baseUrl
   if (markedOpts.baseUrl) {
     if (typeof markedOpts.baseUrl === 'string' && markedOpts.baseUrl.trim() !== '') {
-      markedInstance.use(baseUrl(markedOpts.baseUrl))
+      markedInstance.use(markedBaseUrl(markedOpts.baseUrl))
     }
     delete markedOpts.baseUrl
   }
@@ -103,7 +104,7 @@ function getCachedInstance(opts) {
   // mangle
   if (markedOpts.mangle) {
     delete markedOpts.mangle
-    markedInstance.use(mangle())
+    markedInstance.use(markedMangle())
   }
 
   markedInstance.sanitizedOpts = markedOpts
@@ -156,19 +157,6 @@ function mdr(mdtext, opts = {}) {
     ? markedInstance.parseInline(mdtext, markedOpts)
     : markedInstance.parse(mdtext, markedOpts)
 
-  // //render: katex
-  // const latexHtml = html.replace(reKatexId, (_match, capture) => {
-  //     const token = mathExpMap[capture]
-  //     const renderedKatex = katex.renderToString(token.expression, {
-  //         displayMode: token.type == 'block',
-  //         output: 'html',
-  //         throwOnError: false
-  //     })
-  //     return token.type == 'block' ? ('<div data-aos="fade-up">' + renderedKatex + '</div>') : renderedKatex
-  // })
-
-  const latexHtml = html
-
   let ADD_TAGS = ['iframe']
   let ADD_DATA_URI_TAGS = ['iframe'] // allow iframe tag for GitHub Gist and Youtube videos
   let ADD_ATTRS = ['target', 'allow'] // allow target and allow attributes for a and iframe tags
@@ -179,12 +167,12 @@ function mdr(mdtext, opts = {}) {
   }
 
   return markedOpts.safety
-    ? purify.sanitize(latexHtml, {
+    ? purify.sanitize(html, {
       ADD_TAGS: ADD_TAGS,
       ADD_DATA_URI_TAGS: ADD_DATA_URI_TAGS,
       ADD_ATTR: ADD_ATTRS,
     })
-    : latexHtml
+    : html
 }
 
 export {
