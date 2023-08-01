@@ -9,3 +9,14 @@
  - Remember to import Katex stylesheets to your app (e.g. import 'katex/dist/katex.min.css').
  - Remember to import necessary Katex modules if needed (e.g. import 'katex/contrib/mhchem/mhchem').
  */
+
+import katex from 'katex'
+
+export function extCodeKatex(options) {
+  const kopts = {...options, displayMode: true}
+  return {
+    code(code, infoString, escaped) {
+      return katex.renderToString(code, kopts)
+    }
+  }
+}

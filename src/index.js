@@ -19,6 +19,7 @@ import {checksum} from '@btnguyen2k/checksum'
 
 import {JSDOM} from 'jsdom'
 import DOMPurify from 'dompurify'
+import {extCodeKatex} from "./ext-code-katex.js";
 const window = new JSDOM('').window
 const purify = DOMPurify(window)
 
@@ -53,6 +54,34 @@ function getCachedInstance(opts) {
   const renderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
   markedInstance.defaults.renderer = renderer
 
+  // TODO: will remove when marked fix the bug with escaping backslashes (https://github.com/markedjs/marked/issues/2910)
+  // FIX: https://github.com/markedjs/marked/issues/2910
+  markedInstance.use({
+    extensions: [
+      {
+        name: 'fixBackslashEscaping',
+        level: 'inline',
+        tokenizer(src, tokens) {
+          for (const token of tokens) {
+            if (token.type === 'escape') {
+              // token.text = token.raw.replaceAll(/\\(.)/g, '$1')
+              token.text = token.raw
+            }
+          }
+        }
+      }
+    ]
+  })
+
+  // Katex support
+  if (markedOpts.katex) {
+    markedInstance.use(extInlineKatex(markedOpts.katex_opts))
+    if (typeof markedOpts.code_handlers !== 'object') {
+      markedOpts.code_handlers = {}
+    }
+    markedOpts.code_handlers.katex = extCodeKatex(markedOpts.katex_opts)
+  }
+
   /* marked v5.x */
   // baseUrl
   if (markedOpts.baseUrl) {
@@ -66,11 +95,6 @@ function getCachedInstance(opts) {
   markedInstance.use(extCode(markedOpts))
   delete markedOpts.langPrefix
   delete markedOpts.highlight
-
-  // Katex support
-  if (markedOpts.katex) {
-    markedInstance.use(extInlineKatex(markedOpts.katex_opts))
-  }
 
   // header ids
   markedOpts.headerIds = false

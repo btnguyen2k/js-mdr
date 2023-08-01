@@ -1,6 +1,7 @@
 import {JSDOM} from 'jsdom'
 import {mdr} from '../src/index.js'
 import katex from 'katex'
+import {compare} from 'dom-compare'
 
 const kopts = {output: 'html', throwOnError: false, displayMode: false}
 
@@ -26,7 +27,7 @@ const testCases = [
   {
     input: 'This is not Katex \\$a = b + c$',
     expectedResult: '<p>This is not Katex \\$a = b + c$</p>\n',
-    description: 'inline Katex must start with $',
+    description: 'inline Katex must start with $ (either start of string, or after a space)',
   },
   {
     input: 'This is also not Katex $$\na= b + c\n$$',
@@ -41,14 +42,19 @@ const testCases = [
   },
 ]
 
-describe('mdr_katex', () => {
+describe('mdr_katex_inline', () => {
   testCases.forEach((tc) => {
     it(tc.description, () => {
       const output = mdr(tc.input, tc.opts)
       const window = new JSDOM().window
       const outputNode = new window.DOMParser().parseFromString(output, 'text/html')
-      const expectedNode = new window.DOMParser().parseFromString(tc.input, 'text/html')
-      expect(outputNode.isEqualNode(expectedNode))
+      const expectedNode = new window.DOMParser().parseFromString(tc.expectedResult, 'text/html')
+      const result = compare(outputNode, expectedNode)
+      if (!result.getResult()) {
+        console.log('Expected:', tc.expectedResult)
+        console.log('Received:', output)
+      }
+      expect(result.getResult()).toBe(true)
     })
   })
 })
