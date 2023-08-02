@@ -17,7 +17,9 @@ export function extCodeGHGist(options) {
   const gopts = {...options}
   return {
     code(code, infoString, escaped) {
-      const params = parseParamsFromString(infoString)
+      const params = typeof gopts.params_converter === 'function'
+        ? gopts.params_converter(parseParamsFromString(infoString))
+        : parseParamsFromString(infoString)
       const gist = params.$1 || params.gist || ''
       const url = reAbsoluteUrl.test(gist) ? `${gist}.js` : `https://gist.github.com/${gist}.js`
       const cssClass = params.class || gopts.class || ''

@@ -140,6 +140,7 @@ function getCachedInstance(opts) {
  *   - {object} code_handlers: custom code block handlers. If matched, the code enclosed between ```code_id and ``` will be
  *   handled by the specified handler. The code_handlers object must be a map of {code_id: handler}. The handler must be an
  *   object which has a function with signature code(codeText, infoString, escaped) that returns the HTML output.
+ *
  *   Marked options that should be used instead of extensions:
  *   - {string} baseUrl: if baseUrl option is present, marked-base-url extension is enabled. Do not use marked-base-url directly.
  *   - {boolean} headerIds / {string} headerPrefix: if headerIds/headerPrefix option is present, headings are generated with id attribute. Do not use marked-gfm-heading-id directly.
