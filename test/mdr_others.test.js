@@ -29,6 +29,12 @@ const testCases = [
     description: 'inline',
     opts: {inline: true},
   },
+  {
+    input: 'a',
+    expectedResult: 'a',
+    description: 'disable all extensions',
+    opts: {inline: true, headerIds: false, mangle: false, safety: false, katex: false, ghgist: false, video: false},
+  },
 ]
 
 describe('mdr_others', () => {
