@@ -8,7 +8,10 @@
   "browser": "./lib/index.umd.js",
   "files": [
     "lib/",
-    "src/"
+    "src/",
+    "README.md",
+    "LICENSE.md",
+    "RELEASE-NOTES.md"
   ],
   "exports": {
     ".": {
