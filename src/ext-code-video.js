@@ -47,7 +47,7 @@ export function extCodeVideo(options) {
           return `<div${cssClassStr}${cssStyleStr}><iframe src="${vurl}" allow="fullscreen; accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe></div>`
         }
       } catch (e) {
-        videoUrl = 'https://placehold.co/600x400/red/yellow.mp4?text=Invalid%20media%20url'
+        videoUrl = invalidMediaUrl
       }
       return `<video controls="true"${cssClassStr}${cssStyleStr}><source src="${videoUrl}" /></video>`
     }
