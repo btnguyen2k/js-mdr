@@ -33,7 +33,7 @@ const testCases = [
     input: 'a',
     expectedResult: 'a',
     description: 'disable all extensions',
-    opts: {inline: true, headerIds: false, mangle: false, safety: false, katex: false, ghgist: false},
+    opts: {inline: true, headerIds: false, mangle: false, safety: false, katex: false, ghgist: false, video: false},
   },
 ]
 

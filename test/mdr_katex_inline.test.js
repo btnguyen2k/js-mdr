@@ -26,7 +26,7 @@ const testCases = [
   },
   {
     input: 'This is not Katex \\$a = b + c$',
-    expectedResult: '<p>This is not Katex \\$a = b + c$</p>\n',
+    expectedResult: '<p>This is not Katex $a = b + c$</p>\n',
     description: 'inline Katex must start with $ (either start of string, or after a space)',
   },
   {

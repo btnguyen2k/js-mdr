@@ -11,9 +11,9 @@ Render Markdown to HTML with rich extensions.
 - marked-mangle
 - GFM header-id
 
-⭐ Code highlight (enabled by default) with [highlight.js](https://highlightjs.org/).
+⭐ Code highlight with [highlight.js](https://highlightjs.org/).
 
-⭐ [Katex](https://katex.org/) math support (enabled by default).
+⭐ Support [Katex](https://katex.org/) math formula.
 
 ## Installation
 

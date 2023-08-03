@@ -12,6 +12,7 @@ import {extCode} from './ext-code.js'
 import {extInlineKatex} from './ext-inline-katex.js'
 import {extCodeKatex} from './ext-code-katex.js'
 import {extCodeGHGist} from './ext-code-ghgist.js'
+import {extCodeVideo} from './ext-code-video.js'
 import {MdrRenderer} from './renderer.js'
 import {checksum} from '@btnguyen2k/checksum'
 
@@ -39,7 +40,9 @@ const defaultMarkedOpts = {
     throwOnError: false,
   },
   ghgist: true,
-  ghgist_opts: {}
+  ghgist_opts: {},
+  video: true,
+  video_opts: {},
 }
 
 function addCodeHandler(opts, codeId, handler) {
@@ -61,25 +64,6 @@ function getCachedInstance(opts) {
   const renderer = markedOpts.renderer ? markedOpts.renderer : new MdrRenderer(markedOpts)
   markedInstance.defaults.renderer = renderer
 
-  // TODO: will remove when marked fix the bug with escaping backslashes (https://github.com/markedjs/marked/issues/2910)
-  // FIX: https://github.com/markedjs/marked/issues/2910
-  markedInstance.use({
-    extensions: [
-      {
-        name: 'fixBackslashEscaping',
-        level: 'inline',
-        tokenizer(src, tokens) {
-          for (const token of tokens) {
-            if (token.type === 'escape') {
-              // token.text = token.raw.replaceAll(/\\(.)/g, '$1')
-              token.text = token.raw
-            }
-          }
-        }
-      }
-    ]
-  })
-
   // Katex support
   if (markedOpts.katex) {
     markedInstance.use(extInlineKatex(markedOpts.katex_opts))
@@ -89,6 +73,11 @@ function getCachedInstance(opts) {
   // GitHub Gist support
   if (markedOpts.ghgist) {
     addCodeHandler(markedOpts, 'gh-gist', extCodeGHGist(markedOpts.ghgist_opts))
+  }
+
+  // Video embedding support
+  if (markedOpts.video) {
+    addCodeHandler(markedOpts, 'video', extCodeVideo(markedOpts.video_opts))
   }
 
   /* marked v5.x */
@@ -137,6 +126,8 @@ function getCachedInstance(opts) {
  *   - {object} katex_opts: options for KaTeX, see https://katex.org/docs/options.html
  *   - {boolean} ghgist: if true, GitHub Gist support is enabled
  *   - {object} ghgist_opts: options for GitHub Gist
+ *   - {boolean} video: if true, video embedding is enabled
+ *   - {object} video_opts: options for video embedding
  *   - {object} code_handlers: custom code block handlers. If matched, the code enclosed between ```code_id and ``` will be
  *   handled by the specified handler. The code_handlers object must be a map of {code_id: handler}. The handler must be an
  *   object which has a function with signature code(codeText, infoString, escaped) that returns the HTML output.

@@ -7,6 +7,6 @@
   - marked-mangle
   - GFM header-id
 - Code highlight (enabled by default) with [highlight.js](https://highlightjs.org/).
-- Katex math support (enabled by default).
-- GitHub gist support
-- Video (and Youtube) support
+- Support Katex math formula (enabled by default).
+- Support GitHub gist (enabled by default).
+- Support Video (and Youtube) (enabled by default).
