@@ -45,7 +45,7 @@
     "highlight.js": "^11.8.0",
     "jsdom": "^23.0.1",
     "katex": "^0.16.8",
-    "marked": "^10.0.0",
+    "marked": "^11.0.1",
     "marked-base-url": "^1.0.3",
     "marked-mangle": "^1.1.0"
   },
