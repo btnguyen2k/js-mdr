@@ -43,7 +43,7 @@
     "dompurify": "^3.0.4",
     "github-slugger": "^2.0.0",
     "highlight.js": "^11.8.0",
-    "jsdom": "^23.0.1",
+    "jsdom": "^24.0.0",
     "katex": "^0.16.8",
     "marked": "^11.0.1",
     "marked-base-url": "^1.0.3",
